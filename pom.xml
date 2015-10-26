@@ -65,6 +65,7 @@
 			<artifactId>rxjava</artifactId>
 			<version>1.0.12</version>
 		</dependency>		
+		
 		<dependency>
 				<groupId>io.reactivex</groupId>
 				<artifactId>rxnetty</artifactId>
