@@ -98,5 +98,4 @@ public final class RxTCPServer {
 		RxTCPServer rxTcpServer = new RxTCPServer();
 		rxTcpServer.createServer().startAndWait();
 	}
-
 }

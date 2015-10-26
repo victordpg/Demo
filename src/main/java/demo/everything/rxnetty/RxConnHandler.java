@@ -47,5 +47,4 @@ public class RxConnHandler implements ConnectionHandler<byte[], byte[]> {
 			}
 		});
 	}
-	
 }
