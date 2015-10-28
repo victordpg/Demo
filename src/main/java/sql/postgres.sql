@@ -69,3 +69,6 @@ ORDER BY
 		'99'
 	);
 
+-- 4. 获取字符字段中某些特定字符的个数
+-- 这里是获取action_info中bitIndex个数
+SELECT count(*) FROM aplus_action where action_code='04_F97' AND SUBSTRING(action_info FROM '\"bitIndex\"\:\"...')!=''; 
