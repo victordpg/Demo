@@ -1,4 +1,5 @@
 -- 1. json字段查询，排序
+-- 其中JSON字段metric_info 样式：{"byteCount":"1","byteIndex":"41","byteFormat":"BYTE_ARRAY2INT"}
 -- 查询排序
 SELECT  device_type,
 	metric_code,
