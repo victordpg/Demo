@@ -72,3 +72,26 @@ ORDER BY
 -- 4. 获取字符字段中某些特定字符的个数
 -- 这里是获取action_info中bitIndex个数
 SELECT count(*) FROM aplus_action where action_code='04_F97' AND SUBSTRING(action_info FROM '\"bitIndex\"\:\"...')!=''; 
+
+-- 5. 获取double类型的时间字段对应的时间，并获取text类型是否包含指定字符，数据样式如下：
+-- 11010803	RES20151019143964545	{"0D_F5_DAYFREEZE":"15092316","0D_F5_DAYRATE_M1":10,"0D_F5_DAYRATE_M2":5,"0D_F5_DAYRATE_M3":15,"0D_F5_DAYRATE_M4":4,"0D_F5_DAYRATE_M5":16,"0D_F5_DAYRATE_M6":10,"0D_F5_TOTAL":60}	1446096674	2015-10-29 13:31:14
+SELECT
+	A . ID,
+	A .fqn,
+	b.monitor_data,
+  A .record_time,
+	to_timestamp(A.record_time)::timestamp without time zone
+FROM
+	aplus_monitor_data_fqn A
+INNER JOIN aplus_monitor_data_main b ON A . ID = b. ID
+WHERE
+	A.fqn = 'RES20151019143964545'
+	-- text字段中包含'0D_F5'的数据
+	and "substring"(b.monitor_data,'0D_F5')!=''
+order by record_time desc;
+
+-- 查询当前时间
+select current_timestamp(0)::timestamp without time zone;
+select current_timestamp(3)::timestamp without time zone;
+select current_timestamp(6)::timestamp without time zone;
+select cast (current_timestamp(0) as  timestamp without time zone);
