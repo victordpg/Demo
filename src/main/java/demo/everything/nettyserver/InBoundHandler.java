@@ -27,7 +27,6 @@ import com.neusoft.aplus.databus.util.DBUSDatabusUtil;
  */
 public class InBoundHandler extends SimpleChannelInboundHandler<byte[]> {
 	private static Logger logger = Logger.getLogger(InBoundHandler.class);
-	
 	private static Map<String, MultiFrameModel> map = new ConcurrentHashMap<String, MultiFrameModel>();
 	
 	@Override
