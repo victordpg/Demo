@@ -19,6 +19,7 @@ import com.neusoft.aplus.databus.util.BaseDao;
 public class OutBoundHandler extends ChannelOutboundHandlerAdapter {
 	private static Logger logger = Logger.getLogger(OutBoundHandler.class);
 	
+	
 	@Override
 	public void write(ChannelHandlerContext ctx, Object msg,
 			ChannelPromise promise) throws Exception {

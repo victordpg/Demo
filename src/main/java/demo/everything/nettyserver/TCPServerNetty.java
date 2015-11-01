@@ -29,6 +29,7 @@ public class TCPServerNetty{
 	private static Map<String, byte[]> messageMap = new ConcurrentHashMap<String, byte[]>();
     private static final int TCP_SERVER_PORT;
 	
+    
     static {
         NettyClientConf exConf = SpringUtil.getBean(NettyClientConf.class);
         TCP_SERVER_PORT = exConf.getTCPPort();
