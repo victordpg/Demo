@@ -31,7 +31,7 @@ public class NettyTCPServer{
 	
 	public void start() throws Exception{
 		// Configure the server.
-        EventLoopGroup bossGroup = new NioEventLoopGroup(1);
+        EventLoopGroup bossGroup = new NioEventLoopGroup(100);
         EventLoopGroup workerGroup = new NioEventLoopGroup();
         try {
             ServerBootstrap b = new ServerBootstrap();
@@ -46,8 +46,7 @@ public class NettyTCPServer{
                         	 // Decoders
                         	//ch.pipeline().addLast("frameDecoder",
                         	//                  new LengthFieldBasedFrameDecoder(1048576, 0, 4, 0, 4));
-                        	ch.pipeline().addLast("bytesDecoder",
-                        	                  new ByteArrayDecoder());
+                        	ch.pipeline().addLast("bytesDecoder", new ByteArrayDecoder());
 
                         	 // Encoder
                         	 //ch.pipeline().addLast("frameEncoder", new LengthFieldPrepender(4));
@@ -77,7 +76,7 @@ public class NettyTCPServer{
 	 * @throws Exception
 	 */
 	public static void main(String args[]) throws Exception{
-		new NettyTCPServer(999).start();
+		new NettyTCPServer(10000).start();
 		//new ClientThread().run();
 	}
 
