@@ -9,7 +9,6 @@ public class ByteTest {
 		System.out.println(getValue(bytes2));
 	}
 
-	
 	public static Object getValue(byte[] bytes) {
 		// TODO
 		int value = 0;
