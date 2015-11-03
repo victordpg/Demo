@@ -103,3 +103,13 @@ update aplus_device
 set 
 conn_info = cast(replace(conn_info||'',conn_info ->0->>'region','222') as json)
 where fqn='test1';
+
+
+-- 当执行JSON字段查询的时候产生如下错误：
+-- JSON字段conn_info数据样式：[{"pn":2,"host":"10.1.5.186","active":"True","ip_addr":"10.1.5.186","port":"9999","data_collector":23,"main_server":3,"region":6}]
+[SQL]select * from aplus_device where conn_info->0->>'pn'='0';
+
+[Err] ERROR:  cannot extract element from a scalar
+
+-- 原因：
+-- 该字段conn_info中存在空值，所以无法获取此空值中指定的元素，故报上面错误。
