@@ -95,3 +95,11 @@ select current_timestamp(0)::timestamp without time zone;
 select current_timestamp(3)::timestamp without time zone;
 select current_timestamp(6)::timestamp without time zone;
 select cast (current_timestamp(0) as  timestamp without time zone);
+
+-- 6. 更新json字段中的某一个键值队值
+-- conn_info更新前：[{"pn":2,"host":"10.1.5.186","active":"True","ip_addr":"10.1.5.186","port":"9999","data_collector":23,"main_server":3,"region":111}]
+-- conn_info更新后：[{"pn":2,"host":"10.1.5.186","active":"True","ip_addr":"10.1.5.186","port":"9999","data_collector":23,"main_server":3,"region":222}]
+update aplus_device 
+set 
+conn_info = cast(replace(conn_info||'',conn_info ->0->>'region','222') as json)
+where fqn='test1';
