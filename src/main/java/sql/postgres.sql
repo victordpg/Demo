@@ -112,4 +112,6 @@ where fqn='test1';
 [Err] ERROR:  cannot extract element from a scalar
 
 -- 原因：
--- 该字段conn_info中存在空值，所以无法获取此空值中指定的元素，故报上面错误。
+-- 该字段conn_info中存在非法字符如下：
+-- "{\"pn\":an,\"host\":\"10.1.5.186\",\"active\":\"True\",\"ip_addr\":\"10.1.5.186\",\"port\":\"9999\",\"data_collector\":an3,\"main_server\":3,\"region\":44}"
+-- ，所以无法获取此空值中指定的元素，故报上面错误。
