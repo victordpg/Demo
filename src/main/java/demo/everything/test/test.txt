@@ -1,0 +1,73 @@
+            # 0D_F221：日冻结数据剩余电流、分相线缆温度最大值及发生时间、日剩余电流、分相线缆温度累计越限时间
+            # 0D_F221: 日冻结类数据时标Td_d
+            {NAME: "0D_F221_dayFreeze", CODE: "0D_F221", UNIT: "AplusMetricUnit.HDMY", INTERVAL: 0,
+             TIMEUNIT: TimeUnit.SECONDS, ACTIVE: True,
+             TYPE: AplusMetricValueType.TYPE_STRING, BYTE_COUNT: 4, BYTE_INDEX: 0, BYTE_FORMAT: UserDataFormat.A20},
+
+            # 0D_F221: 剩余电流最大值发生时间
+            {NAME: "0D_F221_remainCMaxTime", CODE: "0D_F221", UNIT: "", INTERVAL: 0, TIMEUNIT: TimeUnit.SECONDS,
+             ACTIVE: True,
+             TYPE: AplusMetricValueType.TYPE_STRING, BYTE_COUNT: 2, BYTE_INDEX: 1,
+             BYTE_FORMAT: UserDataFormat.BYTE_ARRAY2INT},
+
+            # 0D_F221: 剩余电流最大值
+            {NAME: "0D_F221_remainCMaxValue", CODE: "0D_F221", UNIT: "", INTERVAL: 0, TIMEUNIT: TimeUnit.SECONDS,
+             ACTIVE: True,
+             TYPE: AplusMetricValueType.TYPE_STRING, BYTE_COUNT: 3, BYTE_INDEX: 2, BYTE_FORMAT: UserDataFormat.A19},
+
+            # 0D_F221: 剩余电流累计越限时间
+            {NAME: "0D_F221_remainCMaxValue", CODE: "0D_F221", UNIT: "AplusMetricUnit.Mins", INTERVAL: 0,
+             TIMEUNIT: TimeUnit.SECONDS, ACTIVE: True,
+             TYPE: AplusMetricValueType.TYPE_STRING, BYTE_COUNT: 2, BYTE_INDEX: 3,
+             BYTE_FORMAT: UserDataFormat.BYTE_ARRAY2INT},
+
+            # 0D_F221: A相线缆温度最大值发生时间
+            {NAME: "0D_F221_ATempMaxTime", CODE: "0D_F221", UNIT: "", INTERVAL: 0, TIMEUNIT: TimeUnit.SECONDS,
+             ACTIVE: True,
+             TYPE: AplusMetricValueType.TYPE_STRING, BYTE_COUNT: 2, BYTE_INDEX: 4,
+             BYTE_FORMAT: UserDataFormat.BYTE_ARRAY2INT},
+
+            # 0D_F221: A相线缆温度最大值
+            {NAME: "0D_F221_ATempMaxValue", CODE: "0D_F221", UNIT: "AplusMetricUnit.Degree", INTERVAL: 0,
+             TIMEUNIT: TimeUnit.SECONDS, ACTIVE: True,
+             TYPE: AplusMetricValueType.TYPE_STRING, BYTE_COUNT: 2, BYTE_INDEX: 5, BYTE_FORMAT: UserDataFormat.A19},
+
+            # 0D_F221: A相线缆温度累计越限时间
+            {NAME: "0D_F221_ATempAccuOverTime", CODE: "0D_F221", UNIT: "AplusMetricUnit.Mins", INTERVAL: 0,
+             TIMEUNIT: TimeUnit.SECONDS, ACTIVE: True,
+             TYPE: AplusMetricValueType.TYPE_STRING, BYTE_COUNT: 2, BYTE_INDEX: 6,
+             BYTE_FORMAT: UserDataFormat.BYTE_ARRAY2INT},
+
+            # 0D_F221: B相线缆温度最大值发生时间
+            {NAME: "0D_F221_BTempMaxTime", CODE: "0D_F221", UNIT: "", INTERVAL: 0, TIMEUNIT: TimeUnit.SECONDS,
+             ACTIVE: True,
+             TYPE: AplusMetricValueType.TYPE_STRING, BYTE_COUNT: 2, BYTE_INDEX: 7,
+             BYTE_FORMAT: UserDataFormat.BYTE_ARRAY2INT},
+
+            # 0D_F221: B相线缆温度最大值
+            {NAME: "0D_F221_BTempMaxValue", CODE: "0D_F221", UNIT: "AplusMetricUnit.Degree", INTERVAL: 0,
+             TIMEUNIT: TimeUnit.SECONDS, ACTIVE: True,
+             TYPE: AplusMetricValueType.TYPE_STRING, BYTE_COUNT: 2, BYTE_INDEX: 8, BYTE_FORMAT: UserDataFormat.A19},
+
+            # 0D_F221: B相线缆温度累计越限时间
+            {NAME: "0D_F221_BTempAccuOverTime", CODE: "0D_F221", UNIT: "AplusMetricUnit.Mins", INTERVAL: 0,
+             TIMEUNIT: TimeUnit.SECONDS, ACTIVE: True,
+             TYPE: AplusMetricValueType.TYPE_STRING, BYTE_COUNT: 2, BYTE_INDEX: 9,
+             BYTE_FORMAT: UserDataFormat.BYTE_ARRAY2INT},
+
+            # 0D_F221: C相线缆温度最大值发生时间
+            {NAME: "0D_F221_CTempMaxTime", CODE: "0D_F221", UNIT: "", INTERVAL: 0, TIMEUNIT: TimeUnit.SECONDS,
+             ACTIVE: True,
+             TYPE: AplusMetricValueType.TYPE_STRING, BYTE_COUNT: 2, BYTE_INDEX: 10,
+             BYTE_FORMAT: UserDataFormat.BYTE_ARRAY2INT},
+
+            # 0D_F221: C相线缆温度最大值
+            {NAME: "0D_F221_CTempMaxValue", CODE: "0D_F221", UNIT: "AplusMetricUnit.Degree", INTERVAL: 0,
+             TIMEUNIT: TimeUnit.SECONDS, ACTIVE: True,
+             TYPE: AplusMetricValueType.TYPE_STRING, BYTE_COUNT: 2, BYTE_INDEX: 11, BYTE_FORMAT: UserDataFormat.A19},
+
+            # 0D_F221: C相线缆温度累计越限时间
+            {NAME: "0D_F221_CTempAccuOverTime", CODE: "0D_F221", UNIT: "AplusMetricUnit.Mins", INTERVAL: 0,
+             TIMEUNIT: TimeUnit.SECONDS, ACTIVE: True,
+             TYPE: AplusMetricValueType.TYPE_STRING, BYTE_COUNT: 2, BYTE_INDEX: 12,
+             BYTE_FORMAT: UserDataFormat.BYTE_ARRAY2INT}

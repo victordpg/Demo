@@ -12,7 +12,7 @@ import java.io.IOException;
  * @author DIAOPG
  * @date 2015年8月12日
  */
-public class Test7 {
+public class UpdateFileContent {
 
 	@SuppressWarnings("resource")
 	public static void main(String[] args) throws FileNotFoundException {
