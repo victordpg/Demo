@@ -4,6 +4,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.util.Arrays;
 import java.util.Random;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -20,14 +21,14 @@ public class TCP_Server_Initiative {
 		ScheduledThreadPoolExecutor exec = new ScheduledThreadPoolExecutor(5);
 		Thread thread1 = new Thread(new ClientSocketsThread_Initiative());
 		Thread thread2 = new Thread(new ClientSocketsThread_Initiative());
-		Thread thread3 = new Thread(new ClientSocketsThread_Initiative());
+		/*Thread thread3 = new Thread(new ClientSocketsThread_Initiative());
 		Thread thread4 = new Thread(new ClientSocketsThread_Initiative());
-		Thread thread5 = new Thread(new ClientSocketsThread_Initiative());
-		exec.scheduleAtFixedRate(thread1, 1000, 200, TimeUnit.MILLISECONDS);
-		exec.scheduleAtFixedRate(thread2, 1000, 200, TimeUnit.MILLISECONDS);
-		exec.scheduleAtFixedRate(thread3, 1000, 200, TimeUnit.MILLISECONDS);
+		Thread thread5 = new Thread(new ClientSocketsThread_Initiative());*/
+		exec.scheduleAtFixedRate(thread1, 1000, 3000, TimeUnit.MILLISECONDS);
+		exec.scheduleAtFixedRate(thread2, 1000, 3000, TimeUnit.MILLISECONDS);
+		/*exec.scheduleAtFixedRate(thread3, 1000, 200, TimeUnit.MILLISECONDS);
 		exec.scheduleAtFixedRate(thread4, 1000, 200, TimeUnit.MILLISECONDS);
-		exec.scheduleAtFixedRate(thread5, 1000, 200, TimeUnit.MILLISECONDS);
+		exec.scheduleAtFixedRate(thread5, 1000, 200, TimeUnit.MILLISECONDS);*/
 		System.out.println("TCP 主动上传模拟器启动成功！");
 	}
 }
@@ -62,14 +63,16 @@ class ClientSocketsThread_Initiative implements Runnable {
 		DataOutputStream dos = null;
 		Socket clientSocket = null;
 		try {
-			byte[] byteArray = getRandomInitiativeByteArray();
+			byte[] byteArray = getSingle_F5Similar_Bytes();
 			//byte[] byteArray = getMultiFResposeBytes();
-			clientSocket = new Socket("10.1.5.197", 10000);
+			clientSocket = new Socket("192.168.1.100", 10000);
 			//clientSocket.setSoLinger(true, 0);
 			os = clientSocket.getOutputStream();
 			dos = new DataOutputStream(os);
+			System.out.println("----------"+Arrays.toString(byteArray));
 			dos.write(byteArray);
 			dos.flush();
+			System.out.println("=========="+Arrays.toString(byteArray));
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally{

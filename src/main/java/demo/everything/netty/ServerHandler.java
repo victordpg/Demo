@@ -65,8 +65,8 @@ public class ServerHandler extends SimpleChannelInboundHandler<byte[]> {
 		}*/
 		System.out.println("读到信息："+HexConversion.str2HexStr(new String(msg)));
 		
-		byte[] bytes = {1,2,3,4,5,6,7};
-		ctx.channel().writeAndFlush(bytes);
+		/*byte[] bytes = {1,2,3,4,5,6,7};
+		ctx.channel().writeAndFlush(bytes);*/
 	}
 
 	/*@Override
