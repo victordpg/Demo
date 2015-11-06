@@ -52,16 +52,16 @@ class TCPClient_Initiative implements Runnable {
 			Thread thread7 = new Thread(new TCPClient_Initiative(socket7));
 			Thread thread8 = new Thread(new TCPClient_Initiative(socket8));
 			Thread thread9 = new Thread(new TCPClient_Initiative(socket9));
-			exec.scheduleAtFixedRate(thread,  3000, 2, TimeUnit.MILLISECONDS);
-			exec.scheduleAtFixedRate(thread1, 3000, 2, TimeUnit.MILLISECONDS);
-			exec.scheduleAtFixedRate(thread2, 3000, 2, TimeUnit.MILLISECONDS);
-			exec.scheduleAtFixedRate(thread3, 3000, 2, TimeUnit.MILLISECONDS);
-			exec.scheduleAtFixedRate(thread4, 3000, 2, TimeUnit.MILLISECONDS);
-			exec.scheduleAtFixedRate(thread5, 3000, 2, TimeUnit.MILLISECONDS);
-			exec.scheduleAtFixedRate(thread6, 3000, 2, TimeUnit.MILLISECONDS);
-			exec.scheduleAtFixedRate(thread7, 3000, 2, TimeUnit.MILLISECONDS);
-			exec.scheduleAtFixedRate(thread8, 3000, 2, TimeUnit.MILLISECONDS);
-			exec.scheduleAtFixedRate(thread9, 3000, 2, TimeUnit.MILLISECONDS);
+			exec.scheduleAtFixedRate(thread,  3000, 3, TimeUnit.MILLISECONDS);
+			exec.scheduleAtFixedRate(thread1, 3000, 3, TimeUnit.MILLISECONDS);
+			exec.scheduleAtFixedRate(thread2, 3000, 3, TimeUnit.MILLISECONDS);
+			exec.scheduleAtFixedRate(thread3, 3000, 3, TimeUnit.MILLISECONDS);
+			exec.scheduleAtFixedRate(thread4, 3000, 3, TimeUnit.MILLISECONDS);
+			exec.scheduleAtFixedRate(thread5, 3000, 3, TimeUnit.MILLISECONDS);
+			exec.scheduleAtFixedRate(thread6, 3000, 3, TimeUnit.MILLISECONDS);
+			exec.scheduleAtFixedRate(thread7, 3000, 3, TimeUnit.MILLISECONDS);
+			exec.scheduleAtFixedRate(thread8, 3000, 3, TimeUnit.MILLISECONDS);
+			exec.scheduleAtFixedRate(thread9, 3000, 3, TimeUnit.MILLISECONDS);
 			System.out.println("主动上传模拟器启动！");
 		} catch (Exception e) {
 			e.printStackTrace();
