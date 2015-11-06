@@ -8,27 +8,26 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 /**
- * 提取AgentLog中MessageHandler行信息
+ * 提取AgentLog信息
  * @author DIAOPG
  * @date 2015年11月06日
  */
-public class UpdateFileContent2 {
+public class UpdateFileContent3 {
 
 	@SuppressWarnings("resource")
 	public static void main(String[] args) throws FileNotFoundException {
 		
-		BufferedReader bufferedReader = new BufferedReader(new FileReader("D:/Temp/agent.log"));
+		BufferedReader bufferedReader = new BufferedReader(new FileReader("D:/Temp/agent2.log"));
 		String line;
 		
 		try {
-			FileWriter fw = new FileWriter("D:/Temp/agent2.log");
+			FileWriter fw = new FileWriter("D:/Temp/agent3.log");
 			BufferedWriter  bWriter = new BufferedWriter(fw);
 			while (((line = bufferedReader.readLine()) != null)) {
-				boolean contains = line.contains("MessageHandler");
-				if (contains) {
+				int start = line.indexOf("104,");
+				if (start!=63) {
 					bWriter.write(line);
 					bWriter.newLine();
-					System.out.println(line);
 				}
 			}
 			bWriter.flush();

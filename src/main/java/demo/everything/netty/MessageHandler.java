@@ -1,25 +1,5 @@
 package demo.everything.netty;
 
-import io.netty.channel.ChannelHandlerContext;
-
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.BlockingQueue;
-
-import org.apache.log4j.Logger;
-import org.jboss.netty.util.internal.ConcurrentHashMap;
-
-import com.neusoft.aplus.common.eventbus.EventBusFactory;
-import com.neusoft.aplus.common.util.SpringUtil;
-import com.neusoft.aplus.databus.biz.event.InitiativeDataEvent;
-import com.neusoft.aplus.databus.biz.model.MultiFrameModel;
-import com.neusoft.aplus.databus.biz.protocol.tcp.tjyd.frame.DBUSTCPTjydUserDataFrame;
-import com.neusoft.aplus.databus.biz.protocol.tcp.tjyd.initiative.DBUSTCPTjydBaseFrame_Initiative;
-import com.neusoft.aplus.databus.biz.protocol.tcp.tjyd.nettyserver.TCPServerNetty;
-import com.neusoft.aplus.databus.biz.protocol.tcp.tjyd.nettyserver.TCPServerUtil;
-import com.neusoft.aplus.databus.util.BaseDao;
-import com.neusoft.aplus.databus.util.DBUSDatabusUtil;
 
 /**
  * 
@@ -27,7 +7,13 @@ import com.neusoft.aplus.databus.util.DBUSDatabusUtil;
  * @date 2015年11月4日
  */
 public class MessageHandler implements Runnable {
-	private static final Logger logger = Logger.getLogger(MessageHandler.class);
+
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub
+		
+	}
+/*	private static final Logger logger = Logger.getLogger(MessageHandler.class);
 	private static Map<String, MultiFrameModel> map = new ConcurrentHashMap<String, MultiFrameModel>();
 	private BlockingQueue<MessageCtxBean> blockingQueue;
 
@@ -54,7 +40,7 @@ public class MessageHandler implements Runnable {
 					
 					if (byteA3==0) {
 						logger.info("设备 "+TCPServerUtil.getIPString(ctx)+" 主动上传的报文：【"+TCPServerUtil.bytesToHexString(byteArray)+"】");
-			            /**
+			            *//**
 			             *  多帧报文处理：
 			             *  多帧报文的传输形式，分批次多次传输
 			             *  FIR	FIN	应用说明
@@ -64,7 +50,7 @@ public class MessageHandler implements Runnable {
 						 *  1	1	单帧
 						 *  处理方式：前后帧报文连接在一起，在我们程序里将多帧报文拼接成单帧报文，之后当作单帧报文在程序里处理。
 						 *  拼接规则：去掉后一帧报文的第一个数据单元标识，与之前一帧报文进行拼接。
-			             */
+			             *//*
 			            String firFin = TCPServerUtil.to8BitString(Integer.toBinaryString(byteArray[13])).substring(1, 3); //单帧、首、末帧标志
 			            if (!"11".equals(firFin)) {
 			            	try {
@@ -128,24 +114,24 @@ public class MessageHandler implements Runnable {
 					}
 					
 					//更新设备连接状态表
-			       /* byte[] pnBytes = Arrays.copyOfRange(byteArray, 14, 16);
+			        byte[] pnBytes = Arrays.copyOfRange(byteArray, 14, 16);
 			        int pn =DBUSTCPTjydUserDataFrame.dByteToInt(pnBytes, true);
 			        String fqnString = SpringUtil.getBean(BaseDao.class).getFQN(TCPServerUtil.getIPString(ctx), new Integer(pn).toString());
 			        SpringUtil.getBean(BaseDao.class).update(TCPServerUtil.getIPString(ctx), fqnString);
-			        SpringUtil.getBean(BaseDao.class).update(TCPServerUtil.getIPString(ctx), 1);*/
+			        SpringUtil.getBean(BaseDao.class).update(TCPServerUtil.getIPString(ctx), 1);
 			} catch (Exception e) {
 				logger.error("解析报文时出现异常：", e);
 			}
 		}
 	}
 	
-	/**
+	*//**
 	 * 根据帧报文获得相应的确认报文，确认报文功能码00H，数据单元分为F1,F9,F10,F11
 	 * @param received
 	 * @return
 	 * @author DIAOPG
 	 * @date 2015年10月14日
-	 */
+	 *//*
 	protected byte[] getConfirmMessage(byte[] received) {
 		byte[] result = null;
 		byte afn = received[12]; //获取功能码
@@ -335,13 +321,13 @@ public class MessageHandler implements Runnable {
 		return result;
 	}
 	
-	/**
+	*//**
 	 * 获得报文长度对应的两位字节数组（16进制的）
 	 * @param length
 	 * @return
 	 * @author DIAOPG
 	 * @date 2015年10月15日
-	 */
+	 *//*
 	private byte[] getMessageLength(int length){
 		byte[] result = new byte[2];
 		byte[] tmp = new byte[2];
@@ -349,5 +335,5 @@ public class MessageHandler implements Runnable {
 		result[0] =  Byte.parseByte(new Byte(tmp[0]).toString(), 16);
 		result[1] =  Byte.parseByte(new Byte(tmp[1]).toString(), 16);
 		return result;
-	}
+	}*/
 }
