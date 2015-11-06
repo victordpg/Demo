@@ -3,23 +3,19 @@ package demo.everything.netty;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import org.apache.log4j.Logger;
 
-/**
- * 
- * @author DIAOPG
- * @date 2015年11月4日
- */
-//@Component
+
 public class MessageManager{
 	private static final Logger logger = Logger.getLogger(MessageManager.class);
 	
 	private static final ExecutorService executor = Executors.newCachedThreadPool();
-	//private static final BlockingQueue<MessageCtxBean> messageQueue = Queues.newLinkedBlockingQueue();
+	private static final BlockingQueue<MessageCtxBean> messageQueue = new LinkedBlockingQueue<MessageCtxBean>();
 
 	public void start() {
-		//executor.submit(new MessageHandler(getMessagequeue()));
+		executor.submit(new MessageHandler(getMessagequeue()));
 
 		/*while(true) {
 			MessageCtxBean msgBean = null;
@@ -36,9 +32,6 @@ public class MessageManager{
 		}*/
 	}
 
-	/**
-	 * @return the messagequeue
-	 */
 	public static BlockingQueue<MessageCtxBean> getMessagequeue() {
 		//return messageQueue;
 		return null;
