@@ -11,34 +11,36 @@ import org.apache.log4j.Logger;
 public class MessageManager{
 	private static final Logger logger = Logger.getLogger(MessageManager.class);
 	
-	private static final ExecutorService executor = Executors.newCachedThreadPool();
-	private static final BlockingQueue<MessageCtxBean> messageQueue = new LinkedBlockingQueue<MessageCtxBean>();
+	private static final ExecutorService executor1 = Executors.newCachedThreadPool();
+	private static final BlockingQueue<MessageCtxBean> messageQueue1 = new LinkedBlockingQueue<MessageCtxBean>(); //处理主动上传报文
+	private static final ExecutorService executor2 = Executors.newCachedThreadPool();
+	private static final BlockingQueue<MessageCtxBean> messageQueue2 = new LinkedBlockingQueue<MessageCtxBean>(); //处理手动采集报文
 
 	public void start() {
-		executor.submit(new MessageHandler(getMessagequeue()));
-
-		/*while(true) {
-			MessageCtxBean msgBean = null;
-			
-			try {
-				Map<String, MessageCtxBean>  map = InBoundHandler.getMap2QProcess();
-				if (map.containsKey("Key_map2QProcess")) {
-					msgBean = InBoundHandler.getMap2QProcess().get("Key_map2QProcess");
-					messageQueue.put(msgBean);
-				} 
-			} catch (Exception e) {
-				logger.error("接收报文预处理时发生异常：", e);
-			}
-		}*/
+		executor1.submit(new MessageHandler1(getMessageQueue1()));
+		executor2.submit(new MessageHandler2(getMessageQueue2()));
+		logger.info("The Queue Task processing message uploading started!");
 	}
 
-	public static BlockingQueue<MessageCtxBean> getMessagequeue() {
-		//return messageQueue;
-		return null;
+	public static BlockingQueue<MessageCtxBean> getMessageQueue1() {
+		return messageQueue1;
+	}
+	
+	public static BlockingQueue<MessageCtxBean> getMessageQueue2() {
+		return messageQueue2;
 	}
 
-	/*public void destroy() {
-		executor.shutdown();
-		messageQueue.clear();
-	}*/
+	public void destroy() {
+		executor1.shutdown();
+		executor2.shutdown();
+		messageQueue1.clear();
+		messageQueue2.clear();
+	}
+	
+	public static void main(String[] args){
+		MessageManager manager = new MessageManager();
+		//启动Queue Task
+		manager.start();
+	}
+	
 }

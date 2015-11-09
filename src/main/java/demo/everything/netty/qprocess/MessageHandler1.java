@@ -1,100 +1,70 @@
-package demo.everything.netty;
+package demo.everything.netty.qprocess;
 
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.handler.timeout.IdleState;
-import io.netty.handler.timeout.IdleStateEvent;
 
 import java.util.Arrays;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Set;
+import java.util.concurrent.BlockingQueue;
 
 import org.apache.log4j.Logger;
 
-import demo.everything.netty.qprocess.MessageCtxBean;
-import demo.everything.netty.qprocess.MessageManager;
+import demo.everything.netty.TCPServerUtil;
 
 /**
  * 
  * @author DIAOPG
- * @date 2015年11月9日
+ * @date 2015年11月4日
  */
-public class InBoundHandler extends SimpleChannelInboundHandler<byte[]> {
-	private static Logger logger = Logger.getLogger(InBoundHandler.class);
-	private static Map<String, Object> map2QProcess = new ConcurrentHashMap<String, Object>();
-	
+public class MessageHandler1 implements Runnable {
+	private static final Logger logger = Logger.getLogger(MessageHandler1.class);
+	private BlockingQueue<MessageCtxBean> blockingQueue;
 
-	public static Map<String, Object> getMap2QProcess() {
-		return map2QProcess;
-	}
+	public MessageHandler1() {}
 
-	public static void setMap2QProcess(Map<String, Object> map2qProcess) {
-		map2QProcess = map2qProcess;
+	public MessageHandler1(BlockingQueue<MessageCtxBean> blockingQueue) {
+		this.blockingQueue = blockingQueue;
 	}
 
 	@Override
-	public void channelActive(ChannelHandlerContext ctx) throws Exception {
-		super.channelActive(ctx);
-		logger.info("CLIENT "+TCPServerUtil.getRemoteAddress(ctx)+" 接入连接");
-		//往channel map中添加channel信息
-		NettyTCPServer.getMap().put(TCPServerUtil.getIPString(ctx), ctx.channel());	
-	}
+	public void run() {
+		MessageCtxBean msgBean = null;	
+		byte[] byteArray = null;
+		ChannelHandlerContext ctx = null;
+		while(true) {
+			try {
+				msgBean = blockingQueue.take();
+				byteArray = msgBean.getMessageArray();
+				ctx = msgBean.getChhContext();
 
-	@Override
-	public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-		//删除Channel Map中的失效Client
-		logger.info("CLIENT "+TCPServerUtil.getRemoteAddress(ctx)+" 释放连接");
-		NettyTCPServer.getMessageMap().remove(TCPServerUtil.getIPString(ctx));	
-		ctx.close();
-	}
-
-	@Override
-	protected void channelRead0(ChannelHandlerContext ctx, byte[] msg) throws Exception {
-		long startTime = System.currentTimeMillis();
-		byte byteA3 = msg[11]; //主站地址：0表示主动上传的数据，!=0表示手动采集上来的数据。
-
-		MessageCtxBean msgCtxBean = new MessageCtxBean();
-		msgCtxBean.setMessageArray(msg);
-		msgCtxBean.setChhContext(ctx);
-		
-		if (byteA3==0) { 
-			//主动上传的交给messageQueue1处理
-			MessageManager.getMessageQueue1().put(msgCtxBean);
-		}else {
-			//手动采集的交给messageQueue2处理
-			MessageManager.getMessageQueue2().put(msgCtxBean);
+				//count++;
+				
+				logger.info("设备 "+TCPServerUtil.getIPString(ctx)+" 主动上传的报文：【"+TCPServerUtil.bytesToHexString(byteArray)+"】");
+	            /**
+	             *  多帧报文处理：
+	             *  多帧报文的传输形式，分批次多次传输
+	             *  FIR	FIN	应用说明
+				 *  0	0	多帧：中间帧
+				 *  0	1	多帧：结束帧
+				 *  1	0	多帧：第1帧，有后续帧。
+				 *  1	1	单帧
+				 *  处理方式：前后帧报文连接在一起，在我们程序里将多帧报文拼接成单帧报文，之后当作单帧报文在程序里处理。
+				 *  拼接规则：去掉后一帧报文的第一个数据单元标识，与之前一帧报文进行拼接。
+	             */
+	            String firFin = TCPServerUtil.to8BitString(Integer.toBinaryString(byteArray[13])).substring(1, 3); //单帧、首、末帧标志
+	            if (!"11".equals(firFin)) {
+				} else {
+					//处理单帧报文
+				}
+	            
+	            byte[] confirmBytes = getConfirmMessage(byteArray);
+	            ctx.channel().writeAndFlush(confirmBytes); //下发确认报文
+				
+			} catch (Exception e) {
+				logger.error("解析报文时出现异常：", e);
+			}
 		}
-		
-		long endTime = System.currentTimeMillis();
-		logger.debug("线程："+Thread.currentThread().getName()+ ", 耗时："+(endTime-startTime)+ "【" + Arrays.toString(msg)+"】");
 	}
 	
-	@Override
-	public void userEventTriggered(ChannelHandlerContext ctx, Object evt)
-			throws Exception {
-		String socketString = ctx.channel().remoteAddress().toString();
-		
-		if (evt instanceof IdleStateEvent) {
-            IdleStateEvent event = (IdleStateEvent) evt;
-            if (event.state() == IdleState.READER_IDLE) {
-            	logger.info("Client: "+socketString+" READER_IDLE 读超时");
-                ctx.disconnect();
-            } else if (event.state() == IdleState.WRITER_IDLE) {
-            	logger.info("Client: "+socketString+" WRITER_IDLE 写超时");
-                ctx.disconnect();
-            } else if (event.state() == IdleState.ALL_IDLE) {
-            	logger.info("Client: "+socketString+" ALL_IDLE 总超时");
-                ctx.disconnect();
-            }
-        }
-	}
-	
-	@Override
-	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause)
-			throws Exception {
-		super.exceptionCaught(ctx, cause);
-	}
-
 	/**
 	 * 根据帧报文获得相应的确认报文，确认报文功能码00H，数据单元分为F1,F9,F10,F11
 	 * @param received
@@ -290,11 +260,6 @@ public class InBoundHandler extends SimpleChannelInboundHandler<byte[]> {
 
 		return result;
 	}
-	
-    @Override
-    public void channelReadComplete(ChannelHandlerContext ctx) {
-        ctx.flush();
-    }
 	
 	/**
 	 * 获得报文长度对应的两位字节数组（16进制的）
