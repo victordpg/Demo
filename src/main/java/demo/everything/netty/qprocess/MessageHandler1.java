@@ -2,8 +2,6 @@ package demo.everything.netty.qprocess;
 
 import io.netty.channel.ChannelHandlerContext;
 
-import java.util.Arrays;
-import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 
 import org.apache.log4j.Logger;
