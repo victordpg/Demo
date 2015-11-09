@@ -24,6 +24,7 @@ public class UpdateFileContent2 {
 			FileWriter fw = new FileWriter("D:/Temp/agent2.log");
 			BufferedWriter  bWriter = new BufferedWriter(fw);
 			while (((line = bufferedReader.readLine()) != null)) {
+				//boolean contains = line.contains("MSG from InBoundHandler");
 				boolean contains = line.contains("MessageHandler");
 				if (contains) {
 					bWriter.write(line);
