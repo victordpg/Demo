@@ -1,0 +1,65 @@
+INSERT INTO aplus_monitor_data_fqn (
+	fqn,
+	monitor_data,
+	record_time
+)
+VALUES
+	(
+		'1',
+		'{"0C_F177_ALERT":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"0C_F177_A_CURRENT":0.001,"0C_F177_A_ELETRIC":0,"0C_F177_A_POWER":0,"0C_F177_A_TEM":61166,"0C_F177_B_CURRENT":0.001,"0C_F177_B_ELETRIC":0,"0C_F177_B_POWER":0,"0C_F177_B_TEM":61166,"0C_F177_CONFIG":[0,0,0],"0C_F177_C_CURRENT":0.001,"0C_F177_C_ELETRIC":0,"0C_F177_C_POWER":0,"0C_F177_C_TEM":61166,"0C_F177_ERROR":0,"0C_F177_EVENT":[0,0],"0C_F177_LATEST_POWER":0,"0C_F177_NOPOWER":0,"0C_F177_POWER":0,"0C_F177_POWER_FACTOR":99.9,"0C_F177_STATUS":[1,0,1,0,0,0,0,0],"0C_F177_SURPLUS_CURRENT":-4.37,"0C_F177_SYS_FRE":0,"0C_F177_TOTALL_ELETRIC":824133132}',
+		1449146117
+	);
+
+
+SELECT 35359200::timestamp + INTERVAL '6 hours' from aplus_device;
+
+select to_char(to_timestamp(1449049530), 'YYYY-MM-DD HH24:00:00') from aplus_device;
+select to_char(to_timestamp(1448064000), 'YYYYMMDD_HH24') from aplus_policy;
+select to_char(to_timestamp((((1448064000+28800)/864000))*864000-864000), 'YYYYMMDD_HH24') from aplus_policy;
+select to_char(to_timestamp(1449142000), 'YYYYMMDD_HH24') from aplus_policy;
+select to_char(to_timestamp(1448306800), 'YYYYMMDD_HH24') from aplus_policy;
+select to_char(to_timestamp((((1449142000+28800)/864000))*864000-864000), 'YYYYMMDD_HH24') from aplus_policy;
+
+-- 获取4*10天(864000秒=3600秒*24*10)前表aplus_monitor_data_fqn的记录
+SELECT
+  extract(epoch from now())::int-A.record_time,
+	A . ID,
+	A .fqn,
+  A .record_time,
+	to_timestamp(A.record_time)::timestamp without time zone
+FROM
+	aplus_monitor_data_fqn A
+WHERE extract(epoch from now())::int - A.record_time > 864000;
+
+
+-- 获取4*10天(864000秒=3600秒*24*10)前表aplus_monitor_data_main的记录
+select * from aplus_monitor_data_main A where exists(select 1 from aplus_monitor_data_fqn B where A.id=B.id and extract(epoch from now())::int-B.record_time > 864000*4);
+SELECT
+	*
+FROM
+	aplus_monitor_data_main A
+WHERE
+	EXISTS (
+		SELECT
+			1
+		FROM
+			aplus_monitor_data_fqn B
+		WHERE
+			A . ID = B. ID
+		AND EXTRACT (epoch FROM now()) :: INT - B.record_time > 864000
+	);
+
+SELECT
+	A . ID,
+	A .fqn,
+	b.monitor_data,
+  A .record_time,
+	to_timestamp(A.record_time)::timestamp without time zone
+FROM
+	aplus_monitor_data_fqn A
+INNER JOIN aplus_monitor_data_main b ON A . ID = b. ID
+WHERE
+	extract(epoch from now())::int-A.record_time > 864000;
+
+select * from aplus_monitor_data_main A where exists(select 1 from aplus_monitor_data_fqn B where A.id=B.id and extract(epoch from now())::int-B.record_time > 864000  and substring(A.monitor_data,'0C_F') != '');
+select * from aplus_monitor_data_main A where exists(select 1 from aplus_monitor_data_fqn B where A.id=B.id and extract(epoch from now())::int-B.record_time > 864000) and substring(A.monitor_data,'0C_F') != '';

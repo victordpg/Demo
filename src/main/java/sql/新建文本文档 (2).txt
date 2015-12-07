@@ -1,0 +1,92 @@
+--
+-- 历史数据分表触发器，每十天对历史表进行一次分表
+-- 
+-- AUTHOR: diaopg@neusoft.com 
+--
+
+DECLARE
+_new_time int;
+_day text;
+_suffix text;
+_tablename text;
+_tablename_main text;
+_startdate text;
+_enddate text;
+_result record;
+BEGIN
+-- 每10天一个分区，10天=864000秒
+-- 28800是八个小时的秒数，用来校正时区(东八区)
+--_new_time := ((((NEW."record_time"+28800)::FLOAT/864000))::FLOAT*864000::FLOAT-28800)::INT;
+_new_time := NEW."record_time"+28800::INT;
+_day := to_char(to_timestamp(_new_time), 'DD');
+
+IF _day > '20' THEN
+	_startdate := to_char(to_timestamp(_new_time), 'YYYY-MM-21 000000');
+	_suffix := to_char(to_timestamp(_new_time), 'YYYYMM21');
+END if;
+IF _day > '10' and _day =< '20'  THEN
+	_startdate := to_char(to_timestamp(_new_time), 'YYYY-MM-11 000000');
+	_suffix := to_char(to_timestamp(_new_time), 'YYYYMM11');
+END if;
+IF _day < '10'  THEN
+	_startdate := to_char(to_timestamp(_new_time), 'YYYY-MM-01 000000');
+	_suffix := to_char(to_timestamp(_new_time), 'YYYYMM01');
+END if;
+
+_tablename := 'aplus_monitor_data_fqn_'||_suffix;
+_tablename_main := 'aplus_monitor_data_main_'||_suffix;
+
+-- Check if the partition needed for the current record exists
+PERFORM 1
+FROM   pg_catalog.pg_class c
+JOIN   pg_catalog.pg_namespace n ON n.oid = c.relnamespace
+WHERE  c.relkind = 'r'
+AND    c.relname = _tablename
+AND    n.nspname = 'public';
+
+-- If the partition needed does not yet exist, then we create it:
+-- Note that || is string concatenation (joining two strings to make one)
+IF NOT FOUND THEN
+	--_enddate:=_startdate::timestamp + INTERVAL '10 days';
+	IF _day > '20' THEN
+		_enddate := to_char(to_timestamp(_new_time)+ interval '1 months' - interval '1 days', 'YYYYMMDD 235959');
+	END if;
+	IF _day > '10' and _day =< '20'  THEN
+		_enddate:=(_startdate::timestamp + INTERVAL '10 days')- INTERVAL '1 seconds';
+	END if;
+	IF _day < '10'  THEN
+		_enddate:=(_startdate::timestamp + INTERVAL '10 days')- INTERVAL '1 seconds';
+	END if;
+
+	-- table fqn
+	EXECUTE 'CREATE TABLE public.' || quote_ident(_tablename) || ' (
+	CHECK ( "record_time" >= EXTRACT(EPOCH FROM TIMESTAMP WITH TIME ZONE ' || quote_literal(_startdate) || ')
+	AND "record_time" < EXTRACT(EPOCH FROM TIMESTAMP WITH TIME ZONE ' || quote_literal(_enddate) || ')
+	)
+	) INHERITS (public.aplus_monitor_data_fqn)';
+	-- Primary Key
+	EXECUTE 'ALTER TABLE public.' || quote_ident(_tablename) || ' ADD PRIMARY KEY ("id")';
+	-- Table permissions are not inherited from the parent.
+	-- If permissions change on the master be sure to change them on the child also.
+	EXECUTE 'ALTER TABLE public.' || quote_ident(_tablename) || ' OWNER TO postgres';
+	EXECUTE 'GRANT ALL ON TABLE public.' || quote_ident(_tablename) || ' TO postgres';
+	-- Indexes are defined per child, so we assign a default index that uses the partition columns
+	EXECUTE 'CREATE INDEX ' || quote_ident(_tablename||'_indx1') || ' ON public.' || quote_ident(_tablename) || ' (fqn, record_time)';
+
+	-- table main
+	EXECUTE 'CREATE TABLE public.' || quote_ident(_tablename_main) || ' (
+		
+	) INHERITS (public.aplus_monitor_data_main)';
+	-- Primary Key
+	EXECUTE 'ALTER TABLE public.' || quote_ident(_tablename_main) || ' ADD PRIMARY KEY ("id")';
+	-- Table permissions are not inherited from the parent.
+	-- If permissions change on the master be sure to change them on the child also.
+	EXECUTE 'ALTER TABLE public.' || quote_ident(_tablename_main) || ' OWNER TO postgres';
+	EXECUTE 'GRANT ALL ON TABLE public.' || quote_ident(_tablename_main) || ' TO postgres';
+END IF;
+
+-- Insert the current record into the correct partition, which we are sure will now exist.
+EXECUTE 'INSERT INTO public.' || quote_ident(_tablename) || '(fqn, record_time) VALUES ($1.fqn,$1.record_time)' USING NEW;
+EXECUTE 'INSERT INTO public.' || quote_ident(_tablename_main) || '(id, monitor_data) VALUES (currval(''aplus_monitor_data_sequence''), $1.monitor_data)' USING NEW;
+RETURN NULL;
+END;
