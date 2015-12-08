@@ -6,6 +6,8 @@
 
 DECLARE
 _new_time int;
+_day text;
+_nextMonthFirstDay text;
 _suffix text;
 _tablename text;
 _tablename_main text;
@@ -15,9 +17,24 @@ _result record;
 BEGIN
 -- 每10天一个分区，10天=864000秒
 -- 28800是八个小时的秒数，用来校正时区(东八区)
-_new_time := ((((NEW."record_time"+28800)::FLOAT/864000))::FLOAT*864000::FLOAT-864000)::INT;
-_startdate := to_char(to_timestamp(_new_time), 'YYYY-MM-DD HH24:00:00');
-_suffix := to_char(to_timestamp(_new_time), 'YYYYMMDD_HH24');
+--_new_time := ((((NEW."record_time"+28800)::FLOAT/864000))::FLOAT*864000::FLOAT-28800)::INT;
+_new_time := NEW."record_time"+28800::INT;
+_day := to_char(to_timestamp(_new_time), 'DD');
+_nextMonthFirstDay := to_char(to_timestamp(_new_time)+ INTERVAL '1 months', 'YYYY-MM-01 00:00:00');
+
+IF _day > '20' THEN
+	_startdate := to_char(to_timestamp(_new_time), 'YYYY-MM-21 00:00:00');
+	_suffix := to_char(to_timestamp(_new_time), 'YYYYMM21');
+END if;
+IF _day > '10' AND _day <= '20'  THEN
+	_startdate := to_char(to_timestamp(_new_time), 'YYYY-MM-11 00:00:00');
+	_suffix := to_char(to_timestamp(_new_time), 'YYYYMM11');
+END if;
+IF _day < '10'  THEN
+	_startdate := to_char(to_timestamp(_new_time), 'YYYY-MM-01 00:00:00');
+	_suffix := to_char(to_timestamp(_new_time), 'YYYYMM01');
+END if;
+
 _tablename := 'aplus_monitor_data_fqn_'||_suffix;
 _tablename_main := 'aplus_monitor_data_main_'||_suffix;
 
@@ -32,11 +49,21 @@ AND    n.nspname = 'public';
 -- If the partition needed does not yet exist, then we create it:
 -- Note that || is string concatenation (joining two strings to make one)
 IF NOT FOUND THEN
-	_enddate:=_startdate::timestamp + INTERVAL '240 hours';
+	--_enddate:=_startdate::timestamp + INTERVAL '10 days';
+	IF _day > '20' THEN
+		_enddate := (_nextMonthFirstDay::timestamp)- INTERVAL '1 seconds';
+	END if;
+	IF _day > '10' and _day <= '20'  THEN
+		_enddate:=(_startdate::timestamp + INTERVAL '10 days')- INTERVAL '1 seconds';
+	END if;
+	IF _day < '10'  THEN
+		_enddate:=(_startdate::timestamp + INTERVAL '10 days')- INTERVAL '1 seconds';
+	END if;
+
 	-- table fqn
 	EXECUTE 'CREATE TABLE public.' || quote_ident(_tablename) || ' (
-	CHECK ( "record_time" >= EXTRACT(EPOCH FROM TIMESTAMP WITH TIME ZONE ' || quote_literal(_startdate) || ')
-	AND "record_time" < EXTRACT(EPOCH FROM TIMESTAMP WITH TIME ZONE ' || quote_literal(_enddate) || ')
+	CHECK ( "record_time"+28800 >= EXTRACT(EPOCH FROM TIMESTAMP WITH TIME ZONE ' || quote_literal(_startdate) || ')
+	AND "record_time"+28800 < EXTRACT(EPOCH FROM TIMESTAMP WITH TIME ZONE ' || quote_literal(_enddate) || ')
 	)
 	) INHERITS (public.aplus_monitor_data_fqn)';
 	-- Primary Key
