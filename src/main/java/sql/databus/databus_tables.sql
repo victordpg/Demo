@@ -373,3 +373,49 @@ ALTER TABLE "public"."aplus_task" ADD PRIMARY KEY ("task_id");
 -- Primary Key structure for table aplus_time
 -- ----------------------------
 ALTER TABLE "public"."aplus_time" ADD PRIMARY KEY ("id");
+
+
+
+CREATE TABLE "public"."aplus_metric_history_data" (
+"id" int8 DEFAULT nextval('aplus_metric_datas_histrory_seq'::regclass) NOT NULL,
+"fqn" varchar(255) COLLATE "default" NOT NULL,
+"fn" varchar(255) COLLATE "default",
+"monitor_data" text COLLATE "default" NOT NULL,
+"record_time" int8 NOT NULL,
+CONSTRAINT "aplus_data_history_pkey" PRIMARY KEY ("id")
+)
+WITH (OIDS=FALSE)
+;
+
+ALTER TABLE "public"."aplus_metric_history_data" OWNER TO "postgres";
+
+COMMENT ON TABLE "public"."aplus_metric_history_data" IS '该表用于存储指标信息的历史数据，可以存储2级指标，其中列fn存储一级指标名，monitor_data存储其对应的二级指标值对信息。
+';
+
+COMMENT ON COLUMN "public"."aplus_metric_history_data"."fqn" IS '设备唯一标识FQN';
+
+COMMENT ON COLUMN "public"."aplus_metric_history_data"."fn" IS 'F值，大指标名';
+
+COMMENT ON COLUMN "public"."aplus_metric_history_data"."monitor_data" IS 'M值，F下子指标值对';
+
+COMMENT ON COLUMN "public"."aplus_metric_history_data"."record_time" IS '记录时间';
+
+
+
+CREATE INDEX "index_metric_history_data__fn" ON "public"."aplus_metric_history_data" USING btree (fn);
+
+CREATE INDEX "index_metric_history_data__fqn" ON "public"."aplus_metric_history_data" USING btree (fqn);
+
+CREATE INDEX "index_metric_history_data__fqn_fn_recordtime" ON "public"."aplus_metric_history_data" USING btree (fqn, fn, record_time);
+
+CREATE INDEX "index_metric_history_data__fqn_recordtime" ON "public"."aplus_metric_history_data" USING btree (fqn, record_time);
+
+CREATE INDEX "index_metric_history_data__monitordata" ON "public"."aplus_metric_history_data" USING btree (monitor_data);
+
+CREATE INDEX "index_metric_history_data__recordtime" ON "public"."aplus_metric_history_data" USING btree (record_time);
+
+
+
+CREATE TRIGGER "aplus_metric_history_data_trigger" BEFORE INSERT ON "public"."aplus_metric_history_data"
+FOR EACH ROW
+EXECUTE PROCEDURE "partition_aplus_metric_history_data"();
