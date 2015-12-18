@@ -1,4 +1,4 @@
-package demo.everything.string;
+package demo.everything.primitive.string;
 
 import java.util.Arrays;
 
