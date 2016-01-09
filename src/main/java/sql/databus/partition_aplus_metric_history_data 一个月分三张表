@@ -33,7 +33,7 @@ IF _day > '10' AND _day <= '20'  THEN
 	_startdate := to_char(to_timestamp(_new_time), 'YYYY-MM-11 00:00:00');
 	_suffix := to_char(to_timestamp(_new_time), 'YYYYMM11');
 END if;
-IF _day < '10'  THEN
+IF _day <= '10'  THEN
 	_startdate := to_char(to_timestamp(_new_time), 'YYYY-MM-01 00:00:00');
 	_suffix := to_char(to_timestamp(_new_time), 'YYYYMM01');
 END if;
@@ -58,7 +58,7 @@ IF NOT FOUND THEN
 	IF _day > '10' and _day <= '20'  THEN
 		_enddate:=(_startdate::timestamp + INTERVAL '10 days')- INTERVAL '1 seconds';
 	END if;
-	IF _day < '10'  THEN
+	IF _day <= '10'  THEN
 		_enddate:=(_startdate::timestamp + INTERVAL '10 days')- INTERVAL '1 seconds';
 	END if;
 
