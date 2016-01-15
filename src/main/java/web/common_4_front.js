@@ -24,7 +24,10 @@
  * @author Victor_Diao
  * @date 2016年1月14日
  */
+var timeoutVar;
 function showAlert(alertType, text, time4out) {
+	clearTimeout(timeoutVar); //每次调用都要初始化一下，防止多次不同调用后显示不一致
+	
 	var firstPart = "";
 	var legalAlertTypeFlag = 0; //alertType 合法性标识
 
@@ -50,9 +53,9 @@ function showAlert(alertType, text, time4out) {
 	}
 
 	var alertHtml = firstPart
-			+ '<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>'
+			+ '<button type="button" class="close fade in" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>'
 			+ '<strong></strong>' + text + '</div>'
 	$("#divID4Alert").empty().append(alertHtml);
 	if(time4out!=0)
-		setTimeout("$('#divID4Alert').empty()", time4out);
+		timeoutVar = setTimeout("$('#divID4Alert').empty()", time4out);
 }
