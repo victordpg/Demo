@@ -1,0 +1,83 @@
+SPRING MVC
+
+@Controller("CustomerController")
+@RequestMapping(value = "/")
+	
+	/** 
+	* 跳转到资产管理
+	* @author Victor_Diao
+	* @param session
+	* @param model
+	* @return String
+	*/
+	@RequestMapping(value = "customer/assets")
+    public String showAssets(HttpSession session, Model model) {
+		CloudCustomer customer = (CloudCustomer)session.getAttribute(MessageInfo.CUSTOMER);
+		String customerID = customer.getLinkid();
+		String easyUIPropertyTree = customerService.getEasyUITree(customerID);
+		if (easyUIPropertyTree==null || "".equals(easyUIPropertyTree)) {
+			throw new IllegalArgumentException("未得到客户（"+customerID+"）的资源树信息！");
+		}
+		log.debug("资源树EasyUI Tree对应的串为："+easyUIPropertyTree);
+		String bootstrapPropertyTree =  EasyUITree2BootstrapTree.convertEasyTree2BootTree(easyUIPropertyTree);
+		model.addAttribute("propertyTree", bootstrapPropertyTree);
+        return "cloud/web/webpage/customer/assets";
+    }
+	
+	/** 
+	* 获得设备摘要页信息
+	* @author Victor_Diao
+	* @param deviceID
+	* @param session
+	* @param model
+	* @return String
+	*/
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value = "customer/assets/device/{deviceID}")
+    public String showDeviceInfo(@PathVariable String deviceID, HttpSession session, Model model) {
+		Map<String, Object> propertiesInfo = customerService.getDeviceInfo(deviceID);
+		if (propertiesInfo.size()==0) {
+			throw new IllegalArgumentException("未得到设备（"+deviceID+"）的摘要页信息！");
+		}
+		//有无告警
+		String alarmStatus = "无告警";
+		Integer alarm = (Integer) propertiesInfo.get("alarm"); //是否有告警：0，无告警；1,有告警
+		if (alarm==1) {
+			alarmStatus = "有告警";
+		}
+		//设备基本信息
+		Map<String, String> assetInfoMap = (Map<String, String>) propertiesInfo.get("assetinfo");
+		PropertyAssetInfo assetInfo = new PropertyAssetInfo(assetInfoMap);
+		//设备测量点信息
+		List<Map<String, Object>> listPointInfoMap = (List<Map<String, Object>>) propertiesInfo.get("infopoint");
+		List<PropertyAssetPointInfo> listPointInfo1 = new ArrayList<PropertyAssetPointInfo>(); //状态量
+		List<PropertyAssetPointInfo> listPointInfo2 = new ArrayList<PropertyAssetPointInfo>(); //模拟量
+		List<PropertyAssetPointInfo> listPointInfo3 = new ArrayList<PropertyAssetPointInfo>(); //综合参数模拟量
+		List<PropertyAssetPointInfo> listPointInfo4 = new ArrayList<PropertyAssetPointInfo>(); //综合参数状态量
+		for (int i = 0; i < listPointInfoMap.size(); i++) {
+			PropertyAssetPointInfo propertyAssetPointInfo = new PropertyAssetPointInfo(listPointInfoMap.get(i));
+			switch (propertyAssetPointInfo.getShow()) {
+			case "1":
+				listPointInfo1.add(propertyAssetPointInfo);
+				break;
+			case "2":
+				listPointInfo2.add(propertyAssetPointInfo);
+				break;
+			case "3":
+				listPointInfo3.add(propertyAssetPointInfo);
+				break;
+			case "4":
+				listPointInfo4.add(propertyAssetPointInfo);
+				break;
+			}
+		}
+		model.addAttribute("alarmStatus", alarmStatus);
+		model.addAttribute("assetInfo", assetInfo);
+		model.addAttribute("listPointInfo1", listPointInfo1);
+		model.addAttribute("listPointInfo2", listPointInfo2);
+		model.addAttribute("listPointInfo3", listPointInfo3);
+		model.addAttribute("listPointInfo4", listPointInfo4);
+
+		return "cloud/web/webpage/customer/assetsinfo";
+    }		
+	
