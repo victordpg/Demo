@@ -1,4 +1,4 @@
-package web;
+package web.bootstraptree;
 
 import java.util.HashMap;
 import java.util.Map;
