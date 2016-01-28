@@ -1,0 +1,97 @@
+--
+-- 历史数据分表触发器，每月分3张表：
+-- 1. 当月前10天为一张表
+-- 2. 当月11号-20号为一张表
+-- 3. 当月21号之后为一张表
+--
+-- AUTHOR: diaopg@neusoft.com 
+--
+
+DECLARE
+_new_time int;
+_day text;
+_nextMonthFirstDay text;
+_suffix text;
+_tablename text;
+_tablename_main text;
+_startdate text;
+_enddate text;
+_result record;
+
+BEGIN
+-- 每10天一个分区，10天=864000秒
+-- 28800是八个小时的秒数，用来校正时区(东八区)
+_new_time := NEW."record_time"+28800::INT;
+_day := to_char(to_timestamp(_new_time), 'DD');
+_nextMonthFirstDay := to_char(to_timestamp(_new_time)+ INTERVAL '1 months', 'YYYY-MM-01 00:00:00');
+
+IF _day > '20' THEN
+	_startdate := to_char(to_timestamp(_new_time), 'YYYY-MM-21 00:00:00');
+	_suffix := to_char(to_timestamp(_new_time), 'YYYYMM21');
+END if;
+IF _day > '10' AND _day <= '20'  THEN
+	_startdate := to_char(to_timestamp(_new_time), 'YYYY-MM-11 00:00:00');
+	_suffix := to_char(to_timestamp(_new_time), 'YYYYMM11');
+END if;
+IF _day <= '10'  THEN
+	_startdate := to_char(to_timestamp(_new_time), 'YYYY-MM-01 00:00:00');
+	_suffix := to_char(to_timestamp(_new_time), 'YYYYMM01');
+END if;
+
+_tablename := 'aplus_metric_history_data_'||_suffix;
+
+-- Check if the partition needed for the current record exists
+PERFORM 1
+FROM   pg_catalog.pg_class c
+JOIN   pg_catalog.pg_namespace n ON n.oid = c.relnamespace
+WHERE  c.relkind = 'r'
+AND    c.relname = _tablename
+AND    n.nspname = 'public';
+
+-- If the partition needed does not yet exist, then we create it:
+-- Note that || is string concatenation (joining two strings to make one)
+IF NOT FOUND THEN
+
+	IF _day > '20' THEN
+		_enddate := (_nextMonthFirstDay::timestamp)- INTERVAL '1 seconds';
+	END if;
+	IF _day > '10' and _day <= '20'  THEN
+		_enddate:=(_startdate::timestamp + INTERVAL '10 days')- INTERVAL '1 seconds';
+	END if;
+	IF _day <= '10'  THEN
+		_enddate:=(_startdate::timestamp + INTERVAL '10 days')- INTERVAL '1 seconds';
+	END if;
+
+	-- TABLE
+	EXECUTE 'CREATE TABLE public.' || quote_ident(_tablename) || ' (
+	CHECK ( "record_time"+28800 >= EXTRACT(EPOCH FROM TIMESTAMP WITH TIME ZONE ' || quote_literal(_startdate) || ')
+	AND "record_time"+28800 < EXTRACT(EPOCH FROM TIMESTAMP WITH TIME ZONE ' || quote_literal(_enddate) || ')
+	)
+	) INHERITS (public.aplus_metric_history_data)';
+
+	-- Primary Key
+	EXECUTE 'ALTER TABLE public.' || quote_ident(_tablename) || ' ADD PRIMARY KEY ("id")';
+
+	-- Table permissions are not inherited from the parent.
+	-- If permissions change on the master be sure to change them on the child also.
+	EXECUTE 'ALTER TABLE public.' || quote_ident(_tablename) || ' OWNER TO postgres';
+	EXECUTE 'GRANT ALL ON TABLE public.' || quote_ident(_tablename) || ' TO postgres';
+
+	-- Indexes are defined per child, so we assign a default index that uses the partition columns
+	EXECUTE 'CREATE INDEX ' || quote_ident('index_'||_tablename||'__fqn') || ' ON public.' || quote_ident(_tablename) || ' USING btree (fqn)';
+	EXECUTE 'CREATE INDEX ' || quote_ident('index_'||_tablename||'__fn') || ' ON public.' || quote_ident(_tablename) || ' USING btree (fn)';
+	EXECUTE 'CREATE INDEX ' || quote_ident('index_'||_tablename||'__monitordata') || ' ON public.' || quote_ident(_tablename) || ' USING btree (monitor_data)';
+	EXECUTE 'CREATE INDEX ' || quote_ident('index_'||_tablename||'__freezetime') || ' ON public.' || quote_ident(_tablename) || ' USING btree (freeze_time)';
+	EXECUTE 'CREATE INDEX ' || quote_ident('index_'||_tablename||'__freezedensity') || ' ON public.' || quote_ident(_tablename) || ' USING btree (freeze_density)';
+	EXECUTE 'CREATE INDEX ' || quote_ident('index_'||_tablename||'__recordtime') || ' ON public.' || quote_ident(_tablename) || ' USING btree (record_time)';
+	EXECUTE 'CREATE INDEX ' || quote_ident('index_'||_tablename||'__fqn_fn_recordtime') || ' ON public.' || quote_ident(_tablename) || ' USING btree (fqn, fn, record_time)';
+	EXECUTE 'CREATE INDEX ' || quote_ident('index_'||_tablename||'__fqn_recordtime') || ' ON public.' || quote_ident(_tablename) || '  USING btree (fqn, record_time)';
+	EXECUTE 'CREATE INDEX ' || quote_ident('index_'||_tablename||'__fff') || ' ON public.' || quote_ident(_tablename) || ' USING btree (fqn, fn, freeze_time)';
+
+END IF;
+
+-- Insert the current record into the correct partition, which we are sure will now exist.
+EXECUTE 'INSERT INTO public.' || quote_ident(_tablename) || '(fqn, fn, monitor_data, record_time, freeze_time, freeze_density) VALUES ($1.fqn,$1.fn,$1.monitor_data,$1.record_time,$1.freeze_time,$1.freeze_density)' USING NEW;
+RETURN NULL;
+
+END;
