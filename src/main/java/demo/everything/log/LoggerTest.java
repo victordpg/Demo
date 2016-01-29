@@ -9,7 +9,7 @@ public class LoggerTest {
 		//只能打出Console Log，无法打出File Log
 		//BasicConfigurator.configure();
 		//可以打出File Log
-		PropertyConfigurator.configure("/Users/Victor/git/Demo/src/main/java/log4j.property");
+		PropertyConfigurator.configure("config/log4j.property");
 		
 		Log4jTest log4jTest = new Log4jTest();
 		Slf4jTest slf4jTest = new Slf4jTest();

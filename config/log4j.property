@@ -1,0 +1,13 @@
+# 可以配置发送邮件、存储到数据库、针对不同包设置不同日志级别。
+# 性能优化：避免使用 %C, %M, %F, %l, %L,因为他们非常耗时。另外可以设置缓存、采取异步的方式提升性能。
+log4j.rootLogger=DEBUG,D,S  
+  
+log4j.appender.S=org.apache.log4j.ConsoleAppender  
+log4j.appender.S.layout=org.apache.log4j.PatternLayout
+log4j.appender.S.layout.ConversionPattern = %-d{yyyy-MM-dd HH:mm:ss,SSS} [ %p ] [ %t:%r ] - %c{10}: %m%n
+  
+log4j.appender.D = org.apache.log4j.DailyRollingFileAppender
+log4j.appender.D.File = /Users/Victor/git/Demo/log1.log
+log4j.appender.D.Append = true
+log4j.appender.D.layout = org.apache.log4j.PatternLayout
+log4j.appender.D.layout.ConversionPattern = %-d{yyyy-MM-dd HH:mm:ss,SSS} [ %p ] [ %t:%r ] - %c: %m%n
