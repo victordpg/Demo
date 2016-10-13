@@ -1,0 +1,9 @@
+protocol buffer 使用方法：
+1、下载安装编译器文件：https://github.com/google/protobuf/releases/tag/v3.0.0
+
+2、编写proto文件，addressbook.proto
+
+3、进入执行的Protoc文件目录，执行下面命令生成JAVA文件：
+protoc -I=$SRC_DIR --java_out=$DST_DIR $SRC_DIR/addressbook.proto
+如wins下：
+protoc -I=D:/workspace/git/Demo/src/main/java/demo/everything/protoc --java_out=D:/temp D:/workspace/git/Demo/src/main/java/demo/everything/protoc/addressbook.proto
