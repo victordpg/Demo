@@ -1,5 +1,5 @@
 protocol buffer 使用方法：
-1、下载安装编译器文件：https://github.com/google/protobuf/releases/tag/v3.0.0
+1、下载安装protocol buffer编译器：https://github.com/google/protobuf/releases/tag/v3.0.0
 
 2、编写proto文件，addressbook.proto
 
